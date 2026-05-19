@@ -51,6 +51,12 @@ jobs:
           IMAGE_TAG: ${{ steps.tag.outputs.sha }}
         run: docker stack deploy -c docker-stack.yml --resolve-image never ${{ env.STACK }}
 
-      - name: Prune dangling images
+      - name: Clean up old containers and images
         if: always()
-        run: docker image prune -f
+        run: |
+          docker container prune -f
+          docker image prune -f
+          docker images 'spring-boot-cicd' --format '{{.Tag}}' \
+            | grep -v '^latest$' \
+            | tail -n +4 \
+            | xargs -r -I{} docker rmi 'spring-boot-cicd:{}' || true
