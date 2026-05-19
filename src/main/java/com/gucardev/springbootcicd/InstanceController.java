@@ -1,11 +1,12 @@
 package com.gucardev.springbootcicd;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class InstanceController {
@@ -14,9 +15,7 @@ public class InstanceController {
     public Map<String, String> whoami() {
         Map<String, String> info = new LinkedHashMap<>();
         info.put("hostname", hostname());
-        info.put("taskName", envOrDefault("TASK_NAME", "n/a"));
         info.put("taskSlot", envOrDefault("TASK_SLOT", "n/a"));
-        info.put("nodeHostname", envOrDefault("NODE_HOSTNAME", "n/a"));
         return info;
     }
 
