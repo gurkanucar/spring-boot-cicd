@@ -1,0 +1,20 @@
+services:
+  app:
+    image: spring-boot-cicd:latest
+    ports:
+      - "${APP_PORT:-8080}:${SERVER_PORT:-8080}"
+    environment:
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-}
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        order: start-first
+        parallelism: 1
+      restart_policy:
+        condition: on-failure

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  IMAGE: spring-boot-cicd
+  STACK: spring-boot-cicd
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.IMAGE }}:${{ github.sha }} -t ${{ env.IMAGE }}:latest .
+
+      - name: Initialize Swarm (idempotent)
+        if: github.event_name == 'push'
+        run: docker swarm init 2>/dev/null || true
+
+      - name: Deploy stack (zero-downtime rolling update)
+        if: github.event_name == 'push'
+        run: docker stack deploy -c docker-stack.yml --resolve-image never ${{ env.STACK }}
+
+      - name: Prune dangling images
+        if: always()
+        run: docker image prune -f
